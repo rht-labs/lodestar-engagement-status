@@ -1,0 +1,53 @@
+{
+  "overall_status": "green",
+  "messages": [
+    {
+      "severity": "INFO",
+      "message": "We had sandwiches for lunch",
+      "updated": "2020-06-23T21:25:31Z"
+    },
+    {
+      "severity": "CRITICAL",
+      "message": "I got new shoes",
+      "updated": "2020-06-22T11:15:11Z"
+    },
+    {
+      "severity": "SUCCESS",
+      "message": "Hey hey!",
+      "updated": "2020-06-22T10:25:31Z"
+    }
+  ],
+  "subsystems": [
+    {
+      "name": "openshift",
+      "status": "green",
+      "state": "ready",
+      "info": "Ready",
+      "updated": "2020-06-23T09:25:31Z",
+      "web_console": "https://console.com/",
+      "api": "https://lodestar.com:6443",
+      "messages": [
+        {
+          "severity": "INFO",
+          "message": "Console now ready",
+          "updated": "2020-06-23T21:25:31Z"
+        }
+      ]
+    },
+    {
+      "name": "atlassian",
+      "status": "green",
+      "state": "operational",
+      "info": null,
+      "updated": "2020-06-22T20:15:37Z",
+      "url": "https://mycompany.atlassian.net",
+      "messages": [
+        {
+          "severity": "INFO",
+          "message": "This is message 1",
+          "updated": "2020-06-23T21:25:31Z"
+        }
+      ]
+    }
+  ]
+}
