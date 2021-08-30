@@ -1,0 +1,14 @@
+[
+  {
+    "uuid": "uuid",
+    "project_id": 13065
+  },
+  {
+    "uuid": "no-status-file",
+    "project_id": 20962
+  },
+  {
+    "uuid": "bad-thing",
+    "project_id": 666
+  }
+]
