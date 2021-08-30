@@ -1,7 +1,6 @@
 package com.redhat.labs.lodestar.engagement.status.resource;
 
 import com.redhat.labs.lodestar.engagement.status.model.EngagementStatus;
-import com.redhat.labs.lodestar.engagement.status.model.Subsystem;
 import com.redhat.labs.lodestar.engagement.status.service.EngagementStatusService;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
@@ -10,8 +9,6 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Collections;
-import java.util.List;
 
 @RequestScoped
 @Path("/api/engagement/status")

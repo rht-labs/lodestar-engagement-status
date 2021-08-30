@@ -66,9 +66,7 @@ public class EngagementStatusService {
 
         LOGGER.debug("Engagements {}", allEngagements.size());
 
-        allEngagements.forEach(e -> {
-            bus.publish(REFRESH_STATUS_EVENT, e.getUuid());
-        });
+        allEngagements.forEach(e -> bus.publish(REFRESH_STATUS_EVENT, e.getUuid()));
 
         LOGGER.debug("End refresh");
 
