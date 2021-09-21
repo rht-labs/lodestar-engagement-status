@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-if-needed:
-    if: github.repository == 'rht-labs/lodestar-participants'
+    if: github.repository == 'rht-labs/lodestar-engagement-status'
     runs-on: ubuntu-latest
     steps:
     - name: Check whether we need to build this or not
