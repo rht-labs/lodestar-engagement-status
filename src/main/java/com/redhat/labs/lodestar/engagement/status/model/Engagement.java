@@ -14,7 +14,6 @@ public class Engagement {
 
     private String uuid;
     private long projectId;
-    @JsonProperty("engagement_region")
-    private String region;
+    private String state;
     
 }
