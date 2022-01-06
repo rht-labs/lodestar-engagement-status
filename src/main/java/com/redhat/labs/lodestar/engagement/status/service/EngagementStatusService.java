@@ -17,17 +17,22 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import java.util.List;
+import java.util.Set;
 
+@ApplicationScoped
 public class EngagementStatusService {
     private static final Logger LOGGER = LoggerFactory.getLogger(EngagementStatusService.class);
 
     private static final String REFRESH_EVENT = "refresh.event";
     private static final String REFRESH_STATUS_EVENT = "refresh.status.event";
     private static final String STATUS_CACHE_NAME = "engagementStatusCache";
+
+    private final Set<String> statesWithNeedForStatus = Set.of("ACTIVE", "TERMINATING");
 
     @ConfigProperty(name = "git.branch")
     String branch;
@@ -50,8 +55,7 @@ public class EngagementStatusService {
     EngagementApiRestClient engagementApiRestClient;
 
     void onStart(@Observes StartupEvent ev) {
-        LOGGER.debug("There are {} commits in the activity db.", "0");
-        bus.publish(REFRESH_EVENT, REFRESH_EVENT);
+        bus.publish(REFRESH_EVENT, "Refresh at start up");
     }
 
     public void refresh() {
@@ -62,11 +66,15 @@ public class EngagementStatusService {
     @CacheInvalidateAll(cacheName = STATUS_CACHE_NAME)
     public void refresh(String message) {
         LOGGER.debug(message);
-        List<Engagement> allEngagements = engagementApiRestClient.getAllEngagements(false, false, false);
+        List<Engagement> allEngagements = engagementApiRestClient.getAllEngagements(Set.of("ACTIVE", "TERMINATING"));
 
         LOGGER.debug("Engagements {}", allEngagements.size());
-
-        allEngagements.forEach(e -> bus.publish(REFRESH_STATUS_EVENT, e.getUuid()));
+        allEngagements.forEach(e -> {
+            LOGGER.debug("Engagement {}", e);
+            if( statesWithNeedForStatus.contains(e.getState())) {
+                bus.publish(REFRESH_STATUS_EVENT, e.getUuid());
+            }
+        });
 
         LOGGER.debug("End refresh");
 
@@ -77,10 +85,26 @@ public class EngagementStatusService {
         getEngagementStatus(engagementUuid);
     }
 
+    /**
+     * Handling outside of cache so we get muffle the 404 failures since we don't currently
+     * have access to the engagement state (could add that to the call)
+     * @param engagementUuid engagement to refresh
+     */
     @ConsumeEvent(value = REFRESH_STATUS_EVENT)
+    public void refreshEngagement(String engagementUuid) {
+        try {
+            getEngagementStatus(engagementUuid);
+        } catch (WebApplicationException ex) {
+            if (ex.getResponse().getStatus() != 404) {
+                throw ex;
+            }
+            LOGGER.error("Refresh status not found for {}", engagementUuid);
+        }
+    }
     @CacheResult(cacheName = STATUS_CACHE_NAME)
     public EngagementStatus getEngagementStatus(String engagementUuid) {
         LOGGER.debug("Getting status for {}", engagementUuid);
+
         Engagement engagement = engagementApiRestClient.getEngagement(engagementUuid);
         return getStatusFromGitlab(engagement);
     }
@@ -93,11 +117,8 @@ public class EngagementStatusService {
             LOGGER.debug("status file json for project {}", projectIdOrPath);
             return json.fromJson(file.getContent());
         } catch (WebApplicationException ex) {
-            if (ex.getResponse().getStatus() != 404) {
-                throw ex;
-            }
-            LOGGER.error("No status file found for {} {}", projectIdOrPath, ex.getMessage());
-            return null;
+            LOGGER.error("No status file found for {} {} {}", e.getUuid(), projectIdOrPath, ex.getMessage());
+            throw ex;
         }
     }
 }

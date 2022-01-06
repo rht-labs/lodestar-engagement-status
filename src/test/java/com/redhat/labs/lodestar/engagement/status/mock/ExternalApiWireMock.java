@@ -19,7 +19,7 @@ public class ExternalApiWireMock implements QuarkusTestResourceLifecycleManager 
         
         String body = ResourceLoader.load("seed-engagement.json");
         
-        stubFor(get(urlEqualTo("/api/v1/engagements?includeCommits=false&includeStatus=false&pagination=false")).willReturn(aResponse()
+        stubFor(get(urlPathEqualTo("/api/v2/engagements/inStates")).willReturn(aResponse()
                 .withHeader("Content-Type",  "application/json")
                 .withBody(body)
                 ));
@@ -57,7 +57,7 @@ public class ExternalApiWireMock implements QuarkusTestResourceLifecycleManager 
     private MappingBuilder getEngagement(String uuid) {
         String body = ResourceLoader.load("engagement-" + uuid + ".json");
 
-        return get(urlEqualTo("/api/v1/engagements/uuid/" + uuid)).willReturn(aResponse()
+        return get(urlEqualTo("/api/v2/engagements/" + uuid)).willReturn(aResponse()
                 .withHeader("Content-Type",  "application/json")
                 .withBody(body));
     }
